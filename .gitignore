@@ -1,0 +1,17 @@
+pycache/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+.env
+
+Modelle/Daten
+*.pkl
+*.csv
+
+Docker
+grafana_data/
+kafka_data/
+
+Sonstiges
+*.log
