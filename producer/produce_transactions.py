@@ -11,11 +11,12 @@ KAFKA_BROKER = 'localhost:9092'
 TOPIC = 'titanic-events'
 
 producer = KafkaProducer(
-    bootstrap_servers=KAFKA_BROKER,
-    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+    bootstrap_servers=KAFKA_BROKER, # wo ist der kafka broker?
+    value_serializer=lambda v: json.dumps(v).encode('utf-8') #wird automatisch bei jedem send() aufgerufen. 
+    #Kafka akzeptiert nur bytes. value_serializer wandelt dict in json string und dann in bytes um (utf-8 encoding)
 )
 
-def event_from_row(row):
+def event_from_row(row): #macht aus einer DataFrame Zeile ein python dict
     return {
         'Pclass': int(row.Pclass),
         'Sex_enc': int(row.Sex_enc),
@@ -28,8 +29,8 @@ def event_from_row(row):
 EVENTS_PER_SEC = 20
 while True:
     for _ in range(EVENTS_PER_SEC):
-        row = df.sample(1).iloc[0]
-        if pd.isna(row[['Age', 'Fare']]).any(): continue  # Skip rows with NA
-        event = event_from_row(row)
-        producer.send(TOPIC, event)
+        row = df.sample(1).iloc[0] #zufällige Zeile aus DataFrame auswählen
+        if pd.isna(row[['Age', 'Fare']]).any(): continue  # wenn Age oder Fare NaN ist, überspringen
+        event = event_from_row(row) # event aus Zeile erstellen: Python dict (wird bei send() via value_serializer zu JSON → Bytes)
+        producer.send(TOPIC, event) #event an kafka topic senden (siehe value_serializer oben!)
     time.sleep(1)
